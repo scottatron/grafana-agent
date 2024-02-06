@@ -55,6 +55,13 @@ type Pipeline struct {
 	dropCount *prometheus.CounterVec
 }
 
+// Cleanup implements Stage.
+func (p *Pipeline) Cleanup() {
+	for _, s := range p.stages {
+		s.Cleanup()
+	}
+}
+
 // NewPipeline creates a new log entry pipeline from a configuration
 func NewPipeline(logger log.Logger, stages []StageConfig, jobName *string, registerer prometheus.Registerer) (*Pipeline, error) {
 	st := []Stage{}
