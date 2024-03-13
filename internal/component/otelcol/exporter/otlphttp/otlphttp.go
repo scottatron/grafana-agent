@@ -44,9 +44,16 @@ type Arguments struct {
 	TracesEndpoint  string `river:"traces_endpoint,attr,optional"`
 	MetricsEndpoint string `river:"metrics_endpoint,attr,optional"`
 	LogsEndpoint    string `river:"logs_endpoint,attr,optional"`
+
+	Encoding string `river:"encoding,attr,optional"`
 }
 
 var _ exporter.Arguments = Arguments{}
+
+const (
+	EncodingProto string = "proto"
+	EncodingJSON  string = "json"
+)
 
 // DefaultArguments holds default values for Arguments.
 var DefaultArguments = Arguments{
@@ -54,6 +61,7 @@ var DefaultArguments = Arguments{
 	Retry:        otelcol.DefaultRetryArguments,
 	Client:       DefaultHTTPClientArguments,
 	DebugMetrics: otelcol.DefaultDebugMetricsArguments,
+	Encoding:     EncodingProto,
 }
 
 // SetToDefault implements river.Defaulter.
@@ -64,12 +72,13 @@ func (args *Arguments) SetToDefault() {
 // Convert implements exporter.Arguments.
 func (args Arguments) Convert() (otelcomponent.Config, error) {
 	return &otlphttpexporter.Config{
-		HTTPClientSettings: *(*otelcol.HTTPClientArguments)(&args.Client).Convert(),
-		QueueSettings:      *args.Queue.Convert(),
-		RetrySettings:      *args.Retry.Convert(),
-		TracesEndpoint:     args.TracesEndpoint,
-		MetricsEndpoint:    args.MetricsEndpoint,
-		LogsEndpoint:       args.LogsEndpoint,
+		ClientConfig:    *(*otelcol.HTTPClientArguments)(&args.Client).Convert(),
+		QueueConfig:     *args.Queue.Convert(),
+		RetryConfig:     *args.Retry.Convert(),
+		TracesEndpoint:  args.TracesEndpoint,
+		MetricsEndpoint: args.MetricsEndpoint,
+		LogsEndpoint:    args.LogsEndpoint,
+		Encoding:        otlphttpexporter.EncodingType(args.Encoding),
 	}, nil
 }
 
@@ -93,6 +102,9 @@ func (args *Arguments) Validate() error {
 	if args.Client.Endpoint == "" && args.TracesEndpoint == "" && args.MetricsEndpoint == "" && args.LogsEndpoint == "" {
 		return errors.New("at least one endpoint must be specified")
 	}
+	if args.Encoding != EncodingProto && args.Encoding != EncodingJSON {
+		return errors.New("invalid encoding type")
+	}
 	return nil
 }
 
@@ -108,11 +120,12 @@ var (
 		MaxIdleConns:    &DefaultMaxIddleConns,
 		IdleConnTimeout: &DefaultIdleConnTimeout,
 
-		Timeout:         30 * time.Second,
-		Headers:         map[string]string{},
-		Compression:     otelcol.CompressionTypeGzip,
-		ReadBufferSize:  0,
-		WriteBufferSize: 512 * 1024,
+		Timeout:          30 * time.Second,
+		Headers:          map[string]string{},
+		Compression:      otelcol.CompressionTypeGzip,
+		ReadBufferSize:   0,
+		WriteBufferSize:  512 * 1024,
+		HTTP2PingTimeout: 15 * time.Second,
 	}
 )
 

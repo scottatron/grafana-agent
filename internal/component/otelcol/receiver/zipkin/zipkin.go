@@ -55,8 +55,8 @@ func (args *Arguments) SetToDefault() {
 // Convert implements receiver.Arguments.
 func (args Arguments) Convert() (otelcomponent.Config, error) {
 	return &zipkinreceiver.Config{
-		ParseStringTags:    args.ParseStringTags,
-		HTTPServerSettings: *args.HTTPServer.Convert(),
+		ParseStringTags: args.ParseStringTags,
+		ServerConfig:    *args.HTTPServer.Convert(),
 	}, nil
 }
 
