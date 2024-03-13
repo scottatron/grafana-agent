@@ -40,13 +40,13 @@ type GRPCServerArguments struct {
 }
 
 // Convert converts args into the upstream type.
-func (args *GRPCServerArguments) Convert() *otelconfiggrpc.GRPCServerSettings {
+func (args *GRPCServerArguments) Convert() *otelconfiggrpc.ServerConfig {
 	if args == nil {
 		return nil
 	}
 
-	return &otelconfiggrpc.GRPCServerSettings{
-		NetAddr: confignet.NetAddr{
+	return &otelconfiggrpc.ServerConfig{
+		NetAddr: confignet.AddrConfig{
 			Endpoint:  args.Endpoint,
 			Transport: args.Transport,
 		},
@@ -152,7 +152,7 @@ type GRPCClientArguments struct {
 }
 
 // Convert converts args into the upstream type.
-func (args *GRPCClientArguments) Convert() *otelconfiggrpc.GRPCClientSettings {
+func (args *GRPCClientArguments) Convert() *otelconfiggrpc.ClientConfig {
 	if args == nil {
 		return nil
 	}
@@ -168,7 +168,7 @@ func (args *GRPCClientArguments) Convert() *otelconfiggrpc.GRPCClientSettings {
 		auth = &otelconfigauth.Authentication{AuthenticatorID: args.Auth.ID}
 	}
 
-	return &otelconfiggrpc.GRPCClientSettings{
+	return &otelconfiggrpc.ClientConfig{
 		Endpoint: args.Endpoint,
 
 		Compression: args.Compression.Convert(),

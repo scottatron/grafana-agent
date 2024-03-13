@@ -11,13 +11,14 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/collector/config/configgrpc"
 	"go.opentelemetry.io/collector/config/configopaque"
+	"go.opentelemetry.io/collector/config/configretry"
 	"go.opentelemetry.io/collector/exporter/exporterhelper"
 	"go.opentelemetry.io/collector/exporter/otlpexporter"
 )
 
 func TestConfigConversion(t *testing.T) {
 	var (
-		defaultRetrySettings   = exporterhelper.NewDefaultRetrySettings()
+		defaultRetrySettings   = configretry.NewDefaultBackOffConfig()
 		defaultTimeoutSettings = exporterhelper.NewDefaultTimeoutSettings()
 
 		// TODO(rfratto): resync defaults with upstream.
@@ -32,16 +33,16 @@ func TestConfigConversion(t *testing.T) {
 
 		defaultProtocol = loadbalancingexporter.Protocol{
 			OTLP: otlpexporter.Config{
-				GRPCClientSettings: configgrpc.GRPCClientSettings{
+				ClientConfig: configgrpc.ClientConfig{
 					Endpoint:        "",
 					Compression:     "gzip",
 					WriteBufferSize: 512 * 1024,
 					Headers:         map[string]configopaque.String{},
 					BalancerName:    "pick_first",
 				},
-				RetrySettings:   defaultRetrySettings,
+				RetryConfig:     defaultRetrySettings,
 				TimeoutSettings: defaultTimeoutSettings,
-				QueueSettings:   defaultQueueSettings,
+				QueueConfig:     defaultQueueSettings,
 			},
 		}
 	)
@@ -124,9 +125,9 @@ func TestConfigConversion(t *testing.T) {
 						TimeoutSettings: exporterhelper.TimeoutSettings{
 							Timeout: 1 * time.Second,
 						},
-						RetrySettings: defaultRetrySettings,
-						QueueSettings: defaultQueueSettings,
-						GRPCClientSettings: configgrpc.GRPCClientSettings{
+						RetryConfig: defaultRetrySettings,
+						QueueConfig: defaultQueueSettings,
+						ClientConfig: configgrpc.ClientConfig{
 							Endpoint:        "",
 							Compression:     "gzip",
 							WriteBufferSize: 512 * 1024,
