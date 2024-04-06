@@ -1,3 +1,14 @@
+my-build:
+	docker buildx build \
+	--platform linux/amd64,linux/arm/v7 \
+	--build-arg RELEASE_BUILD=1 \
+	--build-arg VERSION=v0.39-scottatron-$(shell git rev-parse --short HEAD) \
+	--tag ghcr.io/scottatron/grafana-agent:v0.39-scottatron-$(shell git rev-parse --short HEAD) \
+	--file cmd/grafana-agent/Dockerfile \
+	--push \
+	. \
+	&& sudo systemctl poweroff
+
 ## Build, test, and generate code for various parts of Grafana Agent.
 ##
 ## At least Go 1.19, git, and a moderately recent version of Docker is required

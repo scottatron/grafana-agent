@@ -1,8 +1,9 @@
 name: Custom multi-arch image build
 on:
-  push:
-    branches:
-      - v0.39-scottatron
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - v0.39-scottatron
 jobs:
   build:
     runs-on: ubuntu-latest
