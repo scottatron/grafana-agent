@@ -26,7 +26,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Get short SHA
         id: short-sha
-        run: echo "::set-output name=sha::$(echo ${GITHUB_SHA::7})"
+        run: echo "sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
       - name: Build and push
         run: >
           docker buildx build 
@@ -34,6 +34,6 @@ jobs:
           --build-arg RELEASE_BUILD=1
           --build-arg VERSION=v0.39-scottatron-${{ steps.short-sha.outputs.sha }}
           --tag ghcr.io/scottatron/grafana-agent:v0.39-scottatron-${{ steps.short-sha.outputs.sha }} 
-          --dockerfile cmd/grafana-agent/Dockerfile
+          --file cmd/grafana-agent/Dockerfile
           --push 
           .
